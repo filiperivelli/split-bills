@@ -1,0 +1,12 @@
+***Update Process***||03/06/2020 11:40:06
+Conecting ...
+Connected...(Event)
+Disconected...(Event)
+Connected...(Event)
+Trying login...(Event)
+Client login Ok...(Event)
+Your Version: 101
+Cheking version ...
+Dowloading...(Event)
+Server Version: 101
+You are using latest version.
