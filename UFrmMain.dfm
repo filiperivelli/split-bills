@@ -34,36 +34,50 @@ object frmMain: TfrmMain
     Height = 137
     Align = alTop
     TabOrder = 1
-    object btnNewHouse: TBitBtn
+    object lblHouse: TLabel
       Left = 8
-      Top = 12
+      Top = 13
+      Width = 34
+      Height = 13
+      Caption = 'House:'
+    end
+    object lblBillCategory: TLabel
+      Left = 8
+      Top = 67
+      Width = 106
+      Height = 13
+      Caption = 'Filter by Bill Category:'
+    end
+    object btnNewHouse: TBitBtn
+      Left = 311
+      Top = 14
       Width = 169
       Height = 41
-      Caption = 'New House'
+      Caption = 'Manage Houses'
       TabOrder = 0
       OnClick = btnNewHouseClick
     end
     object btnNewResident: TBitBtn
-      Left = 189
-      Top = 12
+      Left = 499
+      Top = 14
       Width = 169
       Height = 41
-      Caption = 'New Resident'
+      Caption = 'Manage Residents'
       TabOrder = 1
       OnClick = btnNewResidentClick
     end
     object btnNewBillCategory: TBitBtn
-      Left = 369
-      Top = 12
+      Left = 683
+      Top = 14
       Width = 169
       Height = 41
-      Caption = 'New Bill Category'
+      Caption = 'Manage Bill Category'
       TabOrder = 2
       OnClick = btnNewBillCategoryClick
     end
     object cbbHouse: TComboBox
-      Left = 576
-      Top = 22
+      Left = 8
+      Top = 32
       Width = 281
       Height = 21
       TabOrder = 3
@@ -71,48 +85,54 @@ object frmMain: TfrmMain
       OnEnter = cbbHouseEnter
     end
     object btnSend: TBitBtn
-      Left = 744
-      Top = 69
-      Width = 113
-      Height = 38
-      Caption = 'Send'
+      Left = 683
+      Top = 76
+      Width = 169
+      Height = 41
+      Caption = 'Send Report to Residents'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
       TabOrder = 4
       OnClick = btnSendClick
     end
-    object btnSplit: TBitBtn
-      Left = 480
-      Top = 69
-      Width = 121
-      Height = 38
-      Caption = 'Split Bill'
-      TabOrder = 5
-      OnClick = btnSplitClick
-    end
     object chkSendFilter: TCheckBox
-      Left = 189
-      Top = 79
+      Left = 177
+      Top = 88
       Width = 112
       Height = 17
       Caption = 'Show only "Send"'
-      TabOrder = 6
+      TabOrder = 5
       OnClick = chkSendFilterClick
     end
     object cbbBillType: TComboBox
       Left = 8
-      Top = 77
+      Top = 86
       Width = 145
       Height = 21
-      TabOrder = 7
+      TabOrder = 6
       OnChange = cbbBillTypeChange
     end
-    object btnOnePersonPays: TBitBtn
-      Left = 612
-      Top = 69
+    object chkShowOnlyNotSplitted: TCheckBox
+      Left = 304
+      Top = 88
+      Width = 137
+      Height = 17
+      Caption = 'Show Only Not Splitted'
+      TabOrder = 7
+      OnClick = chkShowOnlyNotSplittedClick
+    end
+    object chkShowOnlyOverdue: TCheckBox
+      Left = 456
+      Top = 88
       Width = 121
-      Height = 38
-      Caption = 'One Person Pays'
+      Height = 17
+      Caption = 'Show only overdue'
       TabOrder = 8
-      OnClick = btnOnePersonPaysClick
+      OnClick = chkShowOnlyOverdueClick
     end
   end
   object pnlBillFields: TPanel
@@ -162,16 +182,16 @@ object frmMain: TfrmMain
     object lbl1: TLabel
       Left = 60
       Top = 304
-      Width = 45
+      Width = 48
       Height = 13
-      Caption = 'Deadline:'
+      Caption = 'Due date:'
     end
     object lbl2: TLabel
       Left = 59
       Top = 352
-      Width = 46
+      Width = 56
       Height = 13
-      Caption = 'Paid Day:'
+      Caption = 'Bill Paid On:'
     end
     object dbedtAmount: TDBEdit
       Left = 60
@@ -210,7 +230,7 @@ object frmMain: TfrmMain
       Width = 209
       Height = 21
       Date = 43900.000000000000000000
-      Time = 0.656462245373404500
+      Time = 0.656462245373404600
       TabOrder = 4
       OnChange = dtpBillFromChange
     end
@@ -293,6 +313,25 @@ object frmMain: TfrmMain
       TabOrder = 10
       OnClick = btnDeleteFileClick
     end
+    object btnOnePersonPays: TBitBtn
+      Left = 191
+      Top = 503
+      Width = 121
+      Height = 38
+      Caption = 'Split Bill'
+      TabOrder = 12
+      OnClick = btnOnePersonPaysClick
+    end
+    object btnSplit: TBitBtn
+      Left = 26
+      Top = 502
+      Width = 121
+      Height = 38
+      Caption = 'Split Bill'
+      TabOrder = 13
+      Visible = False
+      OnClick = btnSplitClick
+    end
   end
   object pnlBills: TPanel
     Left = 329
@@ -306,8 +345,8 @@ object frmMain: TfrmMain
       Left = 1
       Top = 1
       Width = 720
-      Height = 449
-      Align = alTop
+      Height = 447
+      Align = alClient
       DataSource = dsBills
       Options = [dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgRowSelect, dgConfirmDelete, dgCancelOnExit, dgTitleClick, dgTitleHotTrack]
       TabOrder = 0
@@ -350,7 +389,7 @@ object frmMain: TfrmMain
         item
           Expanded = False
           FieldName = 'paid_day'
-          Title.Caption = 'Paid Day'
+          Title.Caption = 'Paid On'
           Visible = True
         end
         item
@@ -370,13 +409,20 @@ object frmMain: TfrmMain
           FieldName = 'send'
           Title.Caption = 'Send'
           Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'splitted'
+          Title.Caption = 'Splitted'
+          Width = 100
+          Visible = True
         end>
     end
     object dbgrdSplit: TDBGrid
       Left = 1
-      Top = 456
+      Top = 448
       Width = 720
-      Height = 148
+      Height = 156
       Align = alBottom
       DataSource = dsSplit
       Options = [dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgRowSelect, dgConfirmDelete, dgCancelOnExit, dgTitleClick, dgTitleHotTrack]
@@ -461,9 +507,13 @@ object frmMain: TfrmMain
     AfterPost = qryBillsAfterPost
     Connection = frmDM.con
     SQL.Strings = (
-      'SELECT t.type,b.*'
+      'SELECT t.type,b.*,'
+      'CASE s.cod_split WHEN '#39#39' then '#39#39
+      '            WHEN not null then '#39'not null'#39
+      '            END as splitted'
       'from bills b'
       'inner join bill_type t on (b.cod_bill_type = t.cod_bill_type)'
+      'left join split s on (b.cod_bills=s.cod_bills)'
       'where b.cod_house = :P_COD_HOUSE'
       'order by b.dead_line desc  ')
     Left = 360
@@ -534,6 +584,11 @@ object frmMain: TfrmMain
       Origin = 'mime_type'
       Size = 32767
     end
+    object qryBillssplitted: TWideStringField
+      FieldName = 'splitted'
+      Origin = 'splitted'
+      Size = 32767
+    end
   end
   object qrySplit: TFDQuery
     Connection = frmDM.con
@@ -542,7 +597,8 @@ object frmMain: TfrmMain
       'from split s '
       'inner join residents r on (s.cod_resident = r.cod_resident ) '
       'inner join bills b on (s.cod_bills = b.cod_bills )'
-      'where b.cod_bills = :P_COD_BILLS')
+      'where b.cod_bills = :P_COD_BILLS'
+      'and s.amount > 0')
     Left = 888
     Top = 176
     ParamData = <

@@ -2,7 +2,7 @@ unit UConstantes;
 
 interface
 const
-version = 102;
+version = 108;
 
 implementation
 

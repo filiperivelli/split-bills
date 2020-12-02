@@ -18,7 +18,8 @@ uses
   UFrmUpdate in 'UFrmUpdate.pas' {frmUpdate},
   UConstantes in 'UConstantes.pas',
   UFrmAbout in 'UFrmAbout.pas' {frmAbout},
-  UFrmSplitOnePerson in 'UFrmSplitOnePerson.pas' {frmOnePersonPays};
+  UFrmSplitOnePerson in 'UFrmSplitOnePerson.pas' {frmOnePersonPays},
+  UfrmUnsliptedBills in 'UfrmUnsliptedBills.pas' {frmUnsplitedBills};
 
 {$R *.res}
 
@@ -27,5 +28,6 @@ begin
   Application.MainFormOnTaskbar := True;
   Application.CreateForm(TfrmDM, frmDM);
   Application.CreateForm(TfrmMain, frmMain);
+  Application.CreateForm(TfrmUnsplitedBills, frmUnsplitedBills);
   Application.Run;
 end.

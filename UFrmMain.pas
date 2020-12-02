@@ -79,6 +79,11 @@ type
     About1: TMenuItem;
     btnOnePersonPays: TBitBtn;
     Searchforupdates1: TMenuItem;
+    lblHouse: TLabel;
+    lblBillCategory: TLabel;
+    qryBillssplitted: TWideStringField;
+    chkShowOnlyNotSplitted: TCheckBox;
+    chkShowOnlyOverdue: TCheckBox;
     procedure House1Click(Sender: TObject);
     procedure btnNewHouseClick(Sender: TObject);
     procedure btnNewResidentClick(Sender: TObject);
@@ -142,6 +147,8 @@ type
     procedure About1Click(Sender: TObject);
     procedure btnOnePersonPaysClick(Sender: TObject);
     procedure Searchforupdates1Click(Sender: TObject);
+    procedure chkShowOnlyNotSplittedClick(Sender: TObject);
+    procedure chkShowOnlyOverdueClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -156,7 +163,7 @@ implementation
 uses
 UFrmUpdate, UFrmManageHouses, UFrmManageResidents, UFrmCategorias,UfrmSend, UDM,
 UClasses, UfrmEmail, UFrmAvg, UFrmView, System.Win.ComObj, Winapi.ShellAPI,
-UFrmAbout, UFrmSplitOnePerson, UFuncions;
+UFrmAbout, UFrmSplitOnePerson, UFuncions, UfrmUnsliptedBills;
 {$R *.dfm}
 
 procedure TfrmMain.About1Click(Sender: TObject);
@@ -236,7 +243,9 @@ begin
   dbchkSend.Enabled       := ativa;
   btnAddFile.Enabled      := ativa;
   btnDeleteFile.Enabled   := ativa;
-  //btnOpenFile.Enabled     := ativa;
+  btnOpenFile.Enabled     := ativa;
+  btnOnePersonPays.Enabled:= ativa;
+  btnOnePersonPays.Enabled:= not(ativa);
 end;
 
 procedure TfrmMain.btnAddFileClick(Sender: TObject);
@@ -308,12 +317,26 @@ end;
 procedure TfrmMain.btnSendClick(Sender: TObject);
 var
   frmSend: TfrmSend;
+  frmUnsliplitedBills: TfrmUnsplitedBills;
 begin
-  frmSend := TfrmSend.Create(nil);
-  try
-    frmSend.ShowModal;
-  finally
-    frmSend.Free;
+  frmUnsliplitedBills := TfrmUnsplitedBills.Create(nil
+  ,THouse(cbbHouse.Items.Objects[cbbHouse.ItemIndex]));
+  if frmUnsliplitedBills.SearchForUnsplitedBills then
+  begin
+    try
+      frmUnsliplitedBills.ShowModal;
+    finally
+      frmUnsliplitedBills.Free;
+    end;
+  end
+  else
+  begin
+    frmSend := TfrmSend.Create(nil,THouse(cbbHouse.Items.Objects[cbbHouse.ItemIndex]));
+    try
+      frmSend.ShowModal;
+    finally
+      frmSend.Free;
+    end;
   end;
 end;
 
@@ -364,13 +387,20 @@ begin
     qryResidentsToSplit.Next;
   end;
 
+  if not bill.checkDates then
+  begin
+    MessageDlg('"Date From" must be before than "Date To"',mtInformation,mbOKCancel,0);
+    Exit;
+  end;
+
+
   if (MessageDlg('Would you like to confirm?'+#13#10+bill.split,mtConfirmation,mbYesNo,0)) = mrNo then
     Exit;
 
   try
     try
-      frmDM.con.StartTransaction;
       qryInsereSplit := TFDQuery.Create(nil);
+      frmDM.con.StartTransaction;
       qryInsereSplit.Connection := frmDM.con;
 
       qryInsereSplit.SQL.Clear;
@@ -381,13 +411,16 @@ begin
 
       for i := 0 to Length(bill.residents)-1 do
       begin
-        qryInsereSplit.SQL.Clear;
-        qryInsereSplit.SQL.Add('INSERT INTO SPLIT(cod_resident, cod_bills, split_date, amount)');
-        qryInsereSplit.SQL.Add('VALUES (:P_COD_RESIDENT, :P_COD_BILLS, datetime(''now''), :P_AMOUNT)');
-        qryInsereSplit.ParamByName('P_COD_RESIDENT').AsInteger := bill.residents[i].cod_resident;
-        qryInsereSplit.ParamByName('P_COD_BILLS').AsInteger    := bill.cod_bills;
-        qryInsereSplit.ParamByName('P_AMOUNT').AsFloat         := bill.residents[i].amountPerUser;
-        qryInsereSplit.ExecSQL;
+        if bill.residents[i].dayUse > 0 then
+        begin
+          qryInsereSplit.SQL.Clear;
+          qryInsereSplit.SQL.Add('INSERT INTO SPLIT(cod_resident, cod_bills, split_date, amount)');
+          qryInsereSplit.SQL.Add('VALUES (:P_COD_RESIDENT, :P_COD_BILLS, datetime(''now''), :P_AMOUNT)');
+          qryInsereSplit.ParamByName('P_COD_RESIDENT').AsInteger := bill.residents[i].cod_resident;
+          qryInsereSplit.ParamByName('P_COD_BILLS').AsInteger    := bill.cod_bills;
+          qryInsereSplit.ParamByName('P_AMOUNT').AsFloat         := bill.residents[i].amountPerUser;
+          qryInsereSplit.ExecSQL;
+        end;
       end;
     finally
       qryInsereSplit.Connection.Commit;
@@ -420,6 +453,12 @@ begin
    THouse(cbbHouse.Items.Objects[cbbHouse.ItemIndex]));
   if frmOnePersonPays.ShowModal = IDOK then
     residentOnePersonPay := frmOnePersonPays.resident;
+
+  if residentOnePersonPay.cod_resident = -1 then
+  begin
+    btnSplitClick(nil);
+    exit;
+  end;
 
   bill := TBill.Create;
   bill.cod_bills      := qryBills.FieldByName('cod_bills').AsInteger;
@@ -464,8 +503,12 @@ begin
       qryInsereSplit.Free;
     end;
   except
-    qryInsereSplit.Connection.Rollback;
-    qryInsereSplit.Free;
+    on E: Exception do
+    begin
+      MessageDlg('Erro:' + E.Message, mtError, [mbOK],0);
+      qryInsereSplit.Connection.Rollback;
+      qryInsereSplit.Free;
+    end;
   end;
 
   loadSplit;
@@ -508,6 +551,16 @@ begin
   loadBills;
 end;
 
+procedure TfrmMain.chkShowOnlyNotSplittedClick(Sender: TObject);
+begin
+  loadBills;
+end;
+
+procedure TfrmMain.chkShowOnlyOverdueClick(Sender: TObject);
+begin
+  loadBills;
+end;
+
 function TfrmMain.connectDB :Boolean;
 begin
   Result := False;
@@ -534,24 +587,23 @@ begin
   end;
 end;
 
-function TfrmMain.createMIMEField: Boolean;
+function TfrmMain.createField: Boolean;
 var
-  qryCreateMIMEField: TFDQuery;
+  qryCreateField: TFDQuery;
 begin
   Result := False;
   try
-    qryCreateMIMEField := TFDQuery.Create(nil);
-    qryCreateMIMEField.Connection := UDM.frmDM.con;
-    qryCreateMIMEField.Connection.StartTransaction;
-    qryCreateMIMEField.SQL.Add('ALTER TABLE BILLS ADD COLUMN mime_type VARCHAR(5)');
-    qryCreateMIMEField.ExecSQL;
-    qryCreateMIMEField.Connection.Commit;
+    qryCreateField := TFDQuery.Create(nil);
+    qryCreateField.Connection := UDM.frmDM.con;
+    qryCreateField.Connection.StartTransaction;
+    qryCreateField.SQL.Add('ALTER TABLE BILLS ADD COLUMN mime_type VARCHAR(5)');
+    qryCreateField.ExecSQL;
+    qryCreateField.Connection.Commit;
     MessageDlg('The field mime_type was sucesfull created.', mtInformation, [mbOK],0);
-    load;
     Result := True;
   except
-    qryCreateMIMEField.Connection.Rollback;
-    qryCreateMIMEField.Free;
+    qryCreateField.Connection.Rollback;
+    qryCreateField.Free;
     Result := False;
   end;
 end;
@@ -599,17 +651,20 @@ end;
 procedure TfrmMain.dbgrdBillsKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
+  ativaDesativaBills(False);
   loadSplit;
 end;
 
 procedure TfrmMain.dbgrdBillsKeyPress(Sender: TObject; var Key: Char);
 begin
+  ativaDesativaBills(False);
   loadSplit;
 end;
 
 procedure TfrmMain.dbgrdBillsKeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
+  ativaDesativaBills(False);
   loadSplit;
 end;
 
@@ -633,8 +688,8 @@ case Button of
     begin
       qryBills.FieldByName('cod_bill_type').AsInteger := 1;
       qryBills.FieldByName('cod_house').AsInteger := THouse(cbbHouse.Items.Objects[cbbHouse.ItemIndex]).cod_house;
-      dtpBillTo.DateTime := Now -30;
-      dtpBillFrom.DateTime := now;
+      dtpBillFrom.DateTime := now-30;
+      dtpBillTo.DateTime := now;
       dtpDeadLine.DateTime := now;
       dbchkSend.Checked := True;
       ativaDesativaBills(true);
@@ -751,14 +806,22 @@ begin
   qryBills.Close;
 
   qryBills.SQL.Clear;
-  qryBills.SQL.Add('SELECT t.type,b.*');
+  qryBills.SQL.Add('SELECT DISTINCT t.type,b.*');
+  qryBills.SQL.Add(',CASE WHEN s.cod_split > 0 then ''Splitted''');
+  qryBills.SQL.Add('ELSE  ''Not Splitted''');
+  qryBills.SQL.Add('END as splitted');
   qryBills.SQL.Add('from bills b');
   qryBills.SQL.Add('inner join bill_type t on (b.cod_bill_type = t.cod_bill_type)');
+  qryBills.SQL.Add('left join split s on (b.cod_bills=s.cod_bills)');
   qryBills.SQL.Add('where b.cod_house = :P_COD_HOUSE');
   if cbbBillType.ItemIndex > 0 then
     qryBills.SQL.Add('and b.cod_bill_type = :P_COD_BILL_TYPE');
   if chkSendFilter.Checked then
     qryBills.SQL.Add('and send = true');
+  if chkShowOnlyNotSplitted.Checked then
+    qryBills.SQL.Add('and splitted = ''Not Splitted''');
+  if chkShowOnlyOverdue.Checked then
+    qryBills.SQL.Add('and(b.dead_line < date(''now'') and paid_day is null)');
   qryBills.SQL.Add('order by b.dead_line desc');
 
   if cbbBillType.ItemIndex > 0 then

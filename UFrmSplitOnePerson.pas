@@ -15,6 +15,7 @@ type
     qryResidents: TFDQuery;
     btnOk: TBitBtn;
     cbbResidents: TComboBox;
+    lblWhoWillPay: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure loadResidents(lista: TComboBox);
     procedure cbbResidentsChange(Sender: TObject);
@@ -72,6 +73,10 @@ begin
   qryResidents.Open;
   qryResidents.First;
   lista.Clear;
+  resident := TResident.Create;
+  resident.nameResident := 'Slipt with all Residents';
+  resident.cod_resident := -1;
+  lista.Items.AddObject(resident.nameResident, TObject(resident));
   while not qryResidents.Eof do
   begin
     resident := TResident.Create;

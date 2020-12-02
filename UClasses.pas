@@ -42,6 +42,7 @@ type
     function split: String;
     function onePersonPays: string;
     function daysUsed(resident: TResident): Integer;
+    function checkDates :Boolean;
   private
   end;
 
@@ -53,6 +54,14 @@ System.DateUtils, System.SysUtils, System.Math, Data.DB, UFuncions;
 
 { TBill }
 
+
+function TBill.checkDates: Boolean;
+begin
+  if Self.dt_from < Self.dt_to then
+    Result := True
+  else
+    Result := False;
+end;
 
 function TBill.daysUsed(resident: TResident): Integer;
 var
@@ -104,14 +113,17 @@ begin
 
   for j := 0 to Length(residents)-1 do
   begin
-    residents[j].amountPerUser := residents[j].dayUse*self.amountPerDay;
-    outPut := outPut + #13;
-    outPut := outPut + #13 +'Name: '+ residents[j].nameResident;
-    if residents[j].couple then
-      outPut := outPut + ' (Couple)';
-    outPut := outPut + #13 +'Days use inside period: '+ IntToStr(residents[j].dayUse);
-    outPut := outPut + #13 +'Should Pay: '
-    + FloatToStrF(residents[j].dayUse*self.amountPerDay, ffFixed,8,2);
+    if residents[j].dayUse > 0 then
+    begin
+      residents[j].amountPerUser := residents[j].dayUse*self.amountPerDay;
+      outPut := outPut + #13;
+      outPut := outPut + #13 +'Name: '+ residents[j].nameResident;
+      if residents[j].couple then
+        outPut := outPut + ' (Couple)';
+      outPut := outPut + #13 +'Days use inside period: '+ IntToStr(residents[j].dayUse);
+      outPut := outPut + #13 +'Should Pay: '
+      + FloatToStrF(residents[j].dayUse*self.amountPerDay, ffFixed,8,2);
+    end;
   end;
 
   Result := outPut;

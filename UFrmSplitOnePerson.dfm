@@ -1,7 +1,7 @@
 object frmOnePersonPays: TfrmOnePersonPays
   Left = 0
   Top = 0
-  Caption = 'One Person Pays'
+  Caption = 'Choose...'
   ClientHeight = 106
   ClientWidth = 405
   Color = clBtnFace
@@ -15,9 +15,16 @@ object frmOnePersonPays: TfrmOnePersonPays
   OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
+  object lblWhoWillPay: TLabel
+    Left = 24
+    Top = 21
+    Width = 99
+    Height = 13
+    Caption = 'Who will pay the bill?'
+  end
   object btnOk: TBitBtn
     Left = 294
-    Top = 64
+    Top = 73
     Width = 75
     Height = 25
     Caption = 'Ok'
@@ -26,7 +33,7 @@ object frmOnePersonPays: TfrmOnePersonPays
   end
   object cbbResidents: TComboBox
     Left = 24
-    Top = 24
+    Top = 40
     Width = 345
     Height = 21
     TabOrder = 1
@@ -41,6 +48,7 @@ object frmOnePersonPays: TfrmOnePersonPays
       'from residents r'
       'inner join house h on(h.cod_house = r.cod_house)'
       'where r.cod_house = :P_COD_HOUSE'
+      'and dt_out < date('#39'now'#39')'
       'order by name')
     Left = 48
     Top = 48
@@ -49,7 +57,7 @@ object frmOnePersonPays: TfrmOnePersonPays
         Name = 'P_COD_HOUSE'
         DataType = ftInteger
         ParamType = ptInput
-        Value = Null
+        Value = 3
       end>
   end
 end
