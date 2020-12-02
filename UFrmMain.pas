@@ -139,8 +139,8 @@ type
     function deleteBillFile: Boolean;
     procedure btnDeleteFileClick(Sender: TObject);
     procedure loadFileButtons;
-    procedure Createmimetypefield1Click(Sender: TObject);
-    function createMIMEField :Boolean;
+    function createField :Boolean;
+    function createTable :Boolean;
     procedure ativaDesativaBills(ativa: Boolean);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     function connectDB: Boolean;
@@ -608,7 +608,7 @@ begin
   end;
 end;
 
-procedure TfrmMain.Createmimetypefield1Click(Sender: TObject);
+function TfrmMain.createTable: Boolean;
 var
   qryCreateMIMEField: TFDQuery;
 begin
