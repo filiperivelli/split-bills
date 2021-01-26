@@ -505,6 +505,7 @@ object frmMain: TfrmMain
     BeforeInsert = qryBillsBeforeInsert
     BeforePost = qryBillsBeforePost
     AfterPost = qryBillsAfterPost
+    AfterDelete = qryBillsAfterDelete
     Connection = frmDM.con
     SQL.Strings = (
       'SELECT t.type,b.*,'

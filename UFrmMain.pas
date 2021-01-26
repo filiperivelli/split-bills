@@ -149,6 +149,7 @@ type
     procedure Searchforupdates1Click(Sender: TObject);
     procedure chkShowOnlyNotSplittedClick(Sender: TObject);
     procedure chkShowOnlyOverdueClick(Sender: TObject);
+    procedure qryBillsAfterDelete(DataSet: TDataSet);
   private
     { Private declarations }
   public
@@ -596,6 +597,7 @@ begin
     qryCreateField := TFDQuery.Create(nil);
     qryCreateField.Connection := UDM.frmDM.con;
     qryCreateField.Connection.StartTransaction;
+    qryCreateField.SQL.Clear;
     qryCreateField.SQL.Add('ALTER TABLE BILLS ADD COLUMN mime_type VARCHAR(5)');
     qryCreateField.ExecSQL;
     qryCreateField.Connection.Commit;
@@ -610,17 +612,24 @@ end;
 
 function TfrmMain.createTable: Boolean;
 var
-  qryCreateMIMEField: TFDQuery;
+  qryCreateTable: TFDQuery;
 begin
   try
-    qryCreateMIMEField := TFDQuery.Create(nil);
-    qryCreateMIMEField.Connection := UDM.frmDM.con;
-    qryCreateMIMEField.Connection.StartTransaction;
-    qryCreateMIMEField.SQL.Add('ALTER TABLE BILLS ADD COLUMN mime_type VARCHAR(5)');
-    qryCreateMIMEField.ExecSQL;
-    qryCreateMIMEField.Connection.Commit;
-    MessageDlg('The field mime_type was sucesfull created.', mtInformation, [mbOK],0);
-    load;
+    qryCreateTable := TFDQuery.Create(nil);
+    qryCreateTable.Connection := UDM.frmDM.con;
+    qryCreateTable.Connection.StartTransaction;
+    qryCreateTable.SQL.Clear;
+    qryCreateTable.SQL.Add('CREATE TABLE IF NOT EXISTS invoices (');
+    qryCreateTable.SQL.Add('cod_invoice integer primary key autoincrement,');
+    qryCreateTable.SQL.Add('created date,');
+    qryCreateTable.SQL.Add('cod_resident integer,');
+    qryCreateTable.SQL.Add('amount float,');
+    qryCreateTable.SQL.Add('due_date date,');
+    qryCreateTable.SQL.Add('paid_on date,');
+    qryCreateTable.SQL.Add('foreign key (cod_resident) references residents (cod_resident))');
+    qryCreateTable.ExecSQL;
+    qryCreateTable.Connection.Commit;
+    MessageDlg('The table invoices was sucesfull created.', mtInformation, [mbOK],0);
   except
     on E: Exception do
     begin
@@ -704,6 +713,8 @@ case Button of
     begin
       ativaDesativaBills(false);
     end;
+
+
   end;
 end;
 
@@ -795,6 +806,7 @@ procedure TfrmMain.load;
 begin
   frmMain.Caption := 'Split Bills - ' + frmDM.con.Params.Database;
   //createMIMEField;
+  createTable;
   loadHouses(cbbHouse);
   loadBillsType;
   loadBillTypeFilter(cbbBillType);
@@ -923,6 +935,11 @@ procedure TfrmMain.qryBillsAfterApplyUpdates(DataSet: TFDDataSet;
 begin
   loadBills;
   dbgrdBills.Refresh
+end;
+
+procedure TfrmMain.qryBillsAfterDelete(DataSet: TDataSet);
+begin
+  loadBills;
 end;
 
 procedure TfrmMain.qryBillsAfterEdit(DataSet: TDataSet);
