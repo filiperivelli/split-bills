@@ -478,10 +478,6 @@ object frmMain: TfrmMain
   end
   object qryBillType: TFDQuery
     Connection = frmDM.con
-    SQL.Strings = (
-      'select *'
-      'from bill_type'
-      'order by type')
     Left = 216
     Top = 136
     object fdtncfldBillTypecod_bill_type: TFDAutoIncField
@@ -508,24 +504,9 @@ object frmMain: TfrmMain
     AfterDelete = qryBillsAfterDelete
     Connection = frmDM.con
     SQL.Strings = (
-      'SELECT t.type,b.*,'
-      'CASE s.cod_split WHEN '#39#39' then '#39#39
-      '            WHEN not null then '#39'not null'#39
-      '            END as splitted'
-      'from bills b'
-      'inner join bill_type t on (b.cod_bill_type = t.cod_bill_type)'
-      'left join split s on (b.cod_bills=s.cod_bills)'
-      'where b.cod_house = :P_COD_HOUSE'
-      'order by b.dead_line desc  ')
+      ' ')
     Left = 360
     Top = 168
-    ParamData = <
-      item
-        Name = 'P_COD_HOUSE'
-        DataType = ftInteger
-        ParamType = ptInput
-        Value = Null
-      end>
     object strngfldBillstype: TStringField
       FieldName = 'type'
       Origin = 'type'
@@ -594,21 +575,9 @@ object frmMain: TfrmMain
   object qrySplit: TFDQuery
     Connection = frmDM.con
     SQL.Strings = (
-      'select r.name, printf("%.2f", s.amount)as amount'
-      'from split s '
-      'inner join residents r on (s.cod_resident = r.cod_resident ) '
-      'inner join bills b on (s.cod_bills = b.cod_bills )'
-      'where b.cod_bills = :P_COD_BILLS'
-      'and s.amount > 0')
+      '')
     Left = 888
     Top = 176
-    ParamData = <
-      item
-        Name = 'P_COD_BILLS'
-        DataType = ftInteger
-        ParamType = ptInput
-        Value = Null
-      end>
     object strngfldSplitname: TStringField
       FieldName = 'name'
       Origin = 'name'

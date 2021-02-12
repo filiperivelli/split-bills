@@ -23,9 +23,9 @@ type
     dbchkCouple: TDBCheckBox;
     dbgrdResidents: TDBGrid;
     dbnvgr1: TDBNavigator;
-    lbl4: TLabel;
+    lblStartingDate: TLabel;
     dbedtdt_in: TDBEdit;
-    lbl5: TLabel;
+    lblMoveOutDate: TLabel;
     dbedtdt_out: TDBEdit;
     strngfldResidentsname: TStringField;
     blnfldResidentscouple: TBooleanField;
@@ -38,6 +38,13 @@ type
     edtNameFilter: TEdit;
     lblNameFilter: TLabel;
     btnClear: TBitBtn;
+    lblBond: TLabel;
+    dbedtBond: TDBEdit;
+    lblPayPeriods: TLabel;
+    dbcbbPayPeriod: TDBComboBox;
+    lblRentPerPeriod: TLabel;
+    dbedtRent: TDBEdit;
+    btnScheduleTable: TBitBtn;
     procedure FormCreate(Sender: TObject);
     procedure edtNameFilterKeyPress(Sender: TObject; var Key: Char);
     procedure btnClearClick(Sender: TObject);
@@ -50,6 +57,8 @@ type
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure qryResidentsDeleteError(DataSet: TDataSet; E: EDatabaseError;
       var Action: TDataAction);
+    procedure edtNameFilterChange(Sender: TObject);
+    procedure btnScheduleTableClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -65,7 +74,7 @@ var
 implementation
 
 uses
-UDM;
+UDM, UFrmScheduleWizard;
 
 {$R *.dfm}
 constructor TfrmManageResidents.Create(AOwner: TComponent; pHouse: THouse);
@@ -93,6 +102,18 @@ begin
   qryResidents.Open;
 end;
 
+procedure TfrmManageResidents.btnScheduleTableClick(Sender: TObject);
+var
+  frmScheduleWizard :TfrmScheduleWizard;
+begin
+  try
+    frmScheduleWizard := TfrmScheduleWizard.Create(nil);
+    frmScheduleWizard.ShowModal;
+  finally
+    frmScheduleWizard.Free;
+  end;
+end;
+
 procedure TfrmManageResidents.dbnvgr1Click(Sender: TObject;
   Button: TNavigateBtn);
 begin
@@ -113,12 +134,19 @@ begin
   end;
 end;
 
+procedure TfrmManageResidents.edtNameFilterChange(Sender: TObject);
+begin
+    qryResidents.Filter := 'upper(name) like ''%'
+  + UpperCase(edtNameFilter.Text) + '%''';
+  qryResidents.Filtered := True;
+end;
+
 procedure TfrmManageResidents.edtNameFilterKeyPress(Sender: TObject;
   var Key: Char);
 begin
-  qryResidents.Filter := 'upper(name) like ''%'
-  + UpperCase(edtNameFilter.Text) + '%''';
-  qryResidents.Filtered := True;
+  //qryResidents.Filter := 'upper(name) like ''%'
+  //+ UpperCase(edtNameFilter.Text) + '%''';
+  //qryResidents.Filtered := True;
 end;
 
 procedure TfrmManageResidents.qryResidentsAfterPost(DataSet: TDataSet);

@@ -2,7 +2,7 @@ object frmManageResidents: TfrmManageResidents
   Left = 0
   Top = 0
   Caption = 'Manager Residents'
-  ClientHeight = 453
+  ClientHeight = 501
   ClientWidth = 710
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -19,7 +19,7 @@ object frmManageResidents: TfrmManageResidents
   TextHeight = 13
   object lblName: TLabel
     Left = 24
-    Top = 48
+    Top = 23
     Width = 31
     Height = 13
     Caption = 'Name:'
@@ -27,7 +27,7 @@ object frmManageResidents: TfrmManageResidents
   end
   object lblEmail: TLabel
     Left = 24
-    Top = 101
+    Top = 96
     Width = 32
     Height = 13
     Caption = 'E-mail:'
@@ -35,26 +35,26 @@ object frmManageResidents: TfrmManageResidents
   end
   object lblMobile: TLabel
     Left = 24
-    Top = 152
+    Top = 147
     Width = 34
     Height = 13
     Caption = 'Mobile:'
     FocusControl = dbedtmobile
   end
-  object lbl4: TLabel
+  object lblStartingDate: TLabel
     Left = 24
-    Top = 219
-    Width = 41
+    Top = 214
+    Width = 62
     Height = 13
-    Caption = 'Move in:'
+    Caption = 'Startin Date:'
     FocusControl = dbedtdt_in
   end
-  object lbl5: TLabel
+  object lblMoveOutDate: TLabel
     Left = 24
-    Top = 279
-    Width = 49
+    Top = 274
+    Width = 77
     Height = 13
-    Caption = 'Move out:'
+    Caption = 'Move Out Date:'
     FocusControl = dbedtdt_out
   end
   object lblNameFilter: TLabel
@@ -64,47 +64,31 @@ object frmManageResidents: TfrmManageResidents
     Height = 13
     Caption = 'Filter by Name:'
   end
-  object dbedtname: TDBEdit
+  object lblBond: TLabel
     Left = 24
-    Top = 64
-    Width = 200
-    Height = 21
-    DataField = 'name'
-    DataSource = dsResidents
-    TabOrder = 0
+    Top = 324
+    Width = 28
+    Height = 13
+    Caption = 'Bond:'
   end
-  object dbedtemail: TDBEdit
+  object lblPayPeriods: TLabel
     Left = 24
-    Top = 121
-    Width = 200
-    Height = 21
-    DataField = 'email'
-    DataSource = dsResidents
-    TabOrder = 1
+    Top = 384
+    Width = 60
+    Height = 13
+    Caption = 'Pay Periods:'
   end
-  object dbedtmobile: TDBEdit
+  object lblRentPerPeriod: TLabel
     Left = 24
-    Top = 178
-    Width = 200
-    Height = 21
-    DataField = 'mobile'
-    DataSource = dsResidents
-    TabOrder = 2
-  end
-  object dbchkCouple: TDBCheckBox
-    Left = 24
-    Top = 339
-    Width = 97
-    Height = 15
-    Caption = 'Couple'
-    DataField = 'couple'
-    DataSource = dsResidents
-    TabOrder = 5
+    Top = 442
+    Width = 79
+    Height = 13
+    Caption = 'Rent Per Period:'
   end
   object dbgrdResidents: TDBGrid
-    Left = 240
+    Left = 248
     Top = 42
-    Width = 440
+    Width = 432
     Height = 317
     DataSource = dsResidents
     Options = [dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgRowSelect, dgConfirmDelete, dgCancelOnExit, dgTitleClick, dgTitleHotTrack]
@@ -138,10 +122,47 @@ object frmManageResidents: TfrmManageResidents
         Visible = True
       end>
   end
+  object dbedtname: TDBEdit
+    Left = 24
+    Top = 42
+    Width = 200
+    Height = 21
+    DataField = 'name'
+    DataSource = dsResidents
+    TabOrder = 0
+  end
+  object dbedtemail: TDBEdit
+    Left = 24
+    Top = 116
+    Width = 200
+    Height = 21
+    DataField = 'email'
+    DataSource = dsResidents
+    TabOrder = 1
+  end
+  object dbedtmobile: TDBEdit
+    Left = 24
+    Top = 173
+    Width = 200
+    Height = 21
+    DataField = 'mobile'
+    DataSource = dsResidents
+    TabOrder = 2
+  end
+  object dbchkCouple: TDBCheckBox
+    Left = 24
+    Top = 72
+    Width = 96
+    Height = 16
+    Caption = 'Couple'
+    DataField = 'couple'
+    DataSource = dsResidents
+    TabOrder = 5
+  end
   object dbnvgr1: TDBNavigator
-    Left = 240
-    Top = 376
-    Width = 378
+    Left = 248
+    Top = 365
+    Width = 432
     Height = 54
     DataSource = dsResidents
     VisibleButtons = [nbFirst, nbPrior, nbNext, nbLast, nbInsert, nbDelete, nbEdit, nbPost, nbCancel]
@@ -152,7 +173,7 @@ object frmManageResidents: TfrmManageResidents
   end
   object dbedtdt_in: TDBEdit
     Left = 24
-    Top = 238
+    Top = 233
     Width = 200
     Height = 21
     DataField = 'dt_in'
@@ -161,7 +182,7 @@ object frmManageResidents: TfrmManageResidents
   end
   object dbedtdt_out: TDBEdit
     Left = 24
-    Top = 295
+    Top = 290
     Width = 200
     Height = 21
     DataField = 'dt_out'
@@ -174,6 +195,7 @@ object frmManageResidents: TfrmManageResidents
     Width = 258
     Height = 21
     TabOrder = 8
+    OnChange = edtNameFilterChange
     OnKeyPress = edtNameFilterKeyPress
   end
   object btnClear: TBitBtn
@@ -184,6 +206,36 @@ object frmManageResidents: TfrmManageResidents
     Caption = 'Clear'
     TabOrder = 9
     OnClick = btnClearClick
+  end
+  object dbedtBond: TDBEdit
+    Left = 24
+    Top = 343
+    Width = 200
+    Height = 21
+    TabOrder = 10
+  end
+  object dbcbbPayPeriod: TDBComboBox
+    Left = 24
+    Top = 403
+    Width = 200
+    Height = 21
+    TabOrder = 11
+  end
+  object dbedtRent: TDBEdit
+    Left = 24
+    Top = 461
+    Width = 200
+    Height = 21
+    TabOrder = 12
+  end
+  object btnScheduleTable: TBitBtn
+    Left = 535
+    Top = 442
+    Width = 145
+    Height = 40
+    Caption = 'Create Schedule Table'
+    TabOrder = 13
+    OnClick = btnScheduleTableClick
   end
   object dsResidents: TDataSource
     DataSet = qryResidents

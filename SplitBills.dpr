@@ -19,7 +19,8 @@ uses
   UConstantes in 'UConstantes.pas',
   UFrmAbout in 'UFrmAbout.pas' {frmAbout},
   UFrmSplitOnePerson in 'UFrmSplitOnePerson.pas' {frmOnePersonPays},
-  UfrmUnsliptedBills in 'UfrmUnsliptedBills.pas' {frmUnsplitedBills};
+  UfrmUnsliptedBills in 'UfrmUnsliptedBills.pas' {frmUnsplitedBills},
+  UFrmScheduleWizard in 'UFrmScheduleWizard.pas' {frmScheduleWizard};
 
 {$R *.res}
 
@@ -29,5 +30,6 @@ begin
   Application.CreateForm(TfrmDM, frmDM);
   Application.CreateForm(TfrmMain, frmMain);
   Application.CreateForm(TfrmUnsplitedBills, frmUnsplitedBills);
+  Application.CreateForm(TfrmScheduleWizard, frmScheduleWizard);
   Application.Run;
 end.

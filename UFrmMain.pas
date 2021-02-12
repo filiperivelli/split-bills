@@ -150,6 +150,8 @@ type
     procedure chkShowOnlyNotSplittedClick(Sender: TObject);
     procedure chkShowOnlyOverdueClick(Sender: TObject);
     procedure qryBillsAfterDelete(DataSet: TDataSet);
+    procedure montaSQLSplit(query: TFDQuery);
+    procedure montaSQLBillType(query: TFDQuery);
   private
     { Private declarations }
   public
@@ -621,15 +623,14 @@ begin
     qryCreateTable.SQL.Clear;
     qryCreateTable.SQL.Add('CREATE TABLE IF NOT EXISTS invoices (');
     qryCreateTable.SQL.Add('cod_invoice integer primary key autoincrement,');
-    qryCreateTable.SQL.Add('created date,');
-    qryCreateTable.SQL.Add('cod_resident integer,');
+    qryCreateTable.SQL.Add('created_date,');
+    qryCreateTable.SQL.Add('cod_split integer,');
     qryCreateTable.SQL.Add('amount float,');
     qryCreateTable.SQL.Add('due_date date,');
     qryCreateTable.SQL.Add('paid_on date,');
-    qryCreateTable.SQL.Add('foreign key (cod_resident) references residents (cod_resident))');
+    qryCreateTable.SQL.Add('foreign key (cod_split) references split (cod_split))');
     qryCreateTable.ExecSQL;
     qryCreateTable.Connection.Commit;
-    MessageDlg('The table invoices was sucesfull created.', mtInformation, [mbOK],0);
   except
     on E: Exception do
     begin
@@ -851,6 +852,7 @@ end;
 procedure TfrmMain.loadBillsType;
 begin
   qryBillType.Close;
+  montaSQLBillType(qryBillType);
   qryBillType.Open;
 end;
 
@@ -910,12 +912,37 @@ end;
 procedure TfrmMain.loadSplit;
 begin
   qrySplit.Close;
+  montaSQLSplit(qrySplit);
   qrySplit.ParamByName('P_COD_BILLS').AsInteger
   := qryBills.FieldByName('COD_BILLS').AsInteger;
   qrySplit.Open;
 
   loadFileButtons;
   loadDates;
+end;
+
+procedure TfrmMain.montaSQLBillType(query: TFDQuery);
+begin
+  with query do
+  begin
+    SQL.Clear;
+    SQL.Add('SELECT COD_BILL_TYPE, TYPE');
+    SQL.Add('FROM BILL_TYPE');
+  end;
+end;
+
+procedure TfrmMain.montaSQLSplit(query: TFDQuery);
+begin
+  with query do
+  begin
+    SQL.Clear;
+    SQL.Add('select r.name, printf("%.2f", s.amount)as amount');
+    SQL.Add('from split s');
+    SQL.Add('inner join residents r on (s.cod_resident = r.cod_resident )');
+    SQL.Add('inner join bills b on (s.cod_bills = b.cod_bills )');
+    SQL.Add('where b.cod_bills = :P_COD_BILLS');
+    SQL.Add('and s.amount > 0');
+  end;
 end;
 
 procedure TfrmMain.NewBillCategory1Click(Sender: TObject);
